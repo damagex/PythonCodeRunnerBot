@@ -8,6 +8,8 @@ authors = ["Zech Zimmerman <hi@zech.codes>"]
 python = "^3.8.0"
 pyyaml = "^5.3.1"
 nextcord = "^2.0.0-alpha.7"
+black = "^22.1.0"
+requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
 

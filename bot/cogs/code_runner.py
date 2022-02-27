@@ -2,6 +2,7 @@ from bot.cog import Cog
 from datetime import datetime, timedelta
 from nextcord.ext.commands import command
 from typing import Tuple
+from bot.runners.javascript import JavascriptInterpreter as js
 import asyncio
 import nextcord
 import json
@@ -19,10 +20,15 @@ class CodeRunner(Cog):
     async def exec(self, ctx, *, content=""):
         if not ctx.guild:
             return
+        if content.strip().startswith("```js") or content.strip().startswith(
+                "```javascript"
+        ):
+            await js().exec(ctx.message, content)
+            return
 
         if content.strip() == "modules":
             with (
-                pathlib.Path(__file__).parent.parent / "allowed_modules.txt"
+                    pathlib.Path(__file__).parent.parent / "allowed_modules.txt"
             ).open() as allowed_modules_file:
                 allowed_modules_list = list(
                     line.strip()
@@ -47,9 +53,9 @@ class CodeRunner(Cog):
             ref_message = await ctx.channel.fetch_message(message.reference.message_id)
             await self._exec(
                 ctx.message,
-                ref_message.content[ref_message.content.find("`") :].strip(),
+                ref_message.content[ref_message.content.find("`"):].strip(),
                 ctx.author,
-                user_input=message.clean_content[message.clean_content.find(" ") + 1 :],
+                user_input=message.clean_content[message.clean_content.find(" ") + 1:],
             )
             return
 
@@ -59,8 +65,8 @@ class CodeRunner(Cog):
     @Cog.listener()
     async def on_raw_reaction_add(self, reaction: nextcord.RawReactionActionEvent):
         if (
-            reaction.emoji.name
-            not in self._code_runner_emojis + self._formatting_emojis
+                reaction.emoji.name
+                not in self._code_runner_emojis + self._formatting_emojis
         ):
             return
 
@@ -89,16 +95,16 @@ class CodeRunner(Cog):
             )
 
     async def _exec(
-        self,
-        message: nextcord.Message,
-        content: str,
-        member: nextcord.Member = None,
-        user_input: str = "",
+            self,
+            message: nextcord.Message,
+            content: str,
+            member: nextcord.Member = None,
+            user_input: str = "",
     ):
         if (
-            not len(content.strip())
-            or content.find("```") < 0
-            or content.rfind("```") <= 0
+                not len(content.strip())
+                or content.find("```") < 0
+                or content.rfind("```") <= 0
         ):
             await message.channel.send(
                 content="" if member is None else member.mention,
@@ -160,9 +166,9 @@ class CodeRunner(Cog):
             )
         if len(out) > 1000:
             out = (
-                old_out[:497]
-                + f"\n.\n.\nRemoved {len(old_out) - 1000} characters\n.\n.\n"
-                + old_out[-504:]
+                    old_out[:497]
+                    + f"\n.\n.\nRemoved {len(old_out) - 1000} characters\n.\n.\n"
+                    + old_out[-504:]
             )
         embed = nextcord.Embed(
             title=title, description=f"```\n{out}\n```", color=color
@@ -182,7 +188,7 @@ class CodeRunner(Cog):
         )
 
     async def code_runner(
-        self, mode: str, code: str, user_input: str = "", restricted=True
+            self, mode: str, code: str, user_input: str = "", restricted=True
     ) -> Tuple[str, str, float]:
         proc = await asyncio.create_subprocess_shell(
             f"python -m bot.runner {mode}",
