@@ -52,6 +52,7 @@ class JavascriptInterpreter:
                 result = await response.json()
                 out = ""
                 for line in result:
+                    print(line)
                     args = []
                     try:
                         title = config[line["type"]]["icon"] + header + config[line["type"]]["text"]
@@ -62,6 +63,11 @@ class JavascriptInterpreter:
 
                     if line["type"] == "fatal":
                         args = str(line["args"][0]["stack"])
+                    elif line["type"] == "error":
+                        if "stack" in line["args"][0]:
+                            args = str(line["args"][0]["stack"])
+                        else:
+                            args = [str(arg) for arg in line["args"]]
                     else:
                         args = [str(arg) for arg in line["args"]]
 
